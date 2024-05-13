@@ -97,13 +97,67 @@ GND is the ground pin.
 
 
 ## STM 32 CUBE PROGRAM :
+```
+#include "main.h"
+#include "stdio.h"
+uint32_t adc_val;
+ADC_HandleTypeDef hadc;
+UART_HandleTypeDef huart2;
+uint32_t adc_val;
+void SystemClock_Config(void);
+static void MX_GPIO_Init(void);
+static void MX_ADC_Init(void);
+static void MX_USART2_UART_Init(void);
+#if defined (_ICCARM) || defined (_ARMCC_VERSION)
+#define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
+#elif defined(_GNUC_)
+#define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
+#endif 
+
+PUTCHAR_PROTOTYPE
+{
+    HAL_UART_Transmit(&huart2, (uint8_t *)&ch, 1, 0xFFFF);
+	   return ch;
+}
+
+int main(void)
+{
+	   HAL_Init();
+	   SystemClock_Config();
+    MX_GPIO_Init();
+    MX_ADC_Init();
+    MX_USART2_UART_Init();
+
+    while (1)
+    {
+		      HAL_ADC_Start(&hadc);
+	  	    HAL_ADC_PollForConversion(&hadc,100);
+	  	    adc_val = HAL_ADC_GetValue(&hadc);
+	  	    HAL_ADC_Stop(&hadc);
+	  	    HAL_Delay(500);
+		      uint32_t soilmoist;
+        soilmoist=adc_val/10.24;
+	      	printf("soilmoisture :%ld\n",soilmoist);
+	      	if(adc_val<500)
+	      	{
+	  		       HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_RESET);;
+	  	    }
+	  	    if(adc_val>500)
+	  	    {
+	  		       HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_SET);;
+	  	    }
+   	}
+}
+```
 
 
 
 ## Output screen shots on serial monitor   :
+ ![329828758-5d81c00c-39df-4df4-be9d-3c825c5008fa](https://github.com/shahinjaffer07/EXPERIMENT--05-SOIL-MOISTURE-SENSOR-INTERFACE-TO-IOT-DEVELOPMENT-BOARD-/assets/147373815/de74a2a5-6a34-4a46-bd45-f97577ee5ca2)
+
  
  
- 
- 
+ ![329828766-a38915bf-c4ef-4379-b6ec-aa1bc7e26f21](https://github.com/shahinjaffer07/EXPERIMENT--05-SOIL-MOISTURE-SENSOR-INTERFACE-TO-IOT-DEVELOPMENT-BOARD-/assets/147373815/20b63e2b-b3d9-4a89-b311-54054cbb412a)
+
 ## Result :
 Interfacing a Analog Input (soil moisture sensor) with ARM microcontroller based IOT development is executed and the results visualized on serial monitor 
